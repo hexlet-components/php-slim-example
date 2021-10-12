@@ -1,0 +1,9 @@
+{
+    "require": {
+        "slim/slim": "^4.9",
+        "slim/psr7": "^1.5",
+        "slim/http": "^1.2",
+        "slim/php-view": "^3.1",
+        "php-di/php-di": "^6.3"
+    }
+}
