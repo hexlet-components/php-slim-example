@@ -23,4 +23,9 @@ $app->post('/users', function ($request, $response) {
     return $response->withStatus(302);
 });
 
+$app->get('/courses/{id}', function ($request, $response, array $args) {
+    $id = $args['id'];
+    return $response->write("Course id: {$id}");
+});
+
 $app->run();
