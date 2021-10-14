@@ -3,16 +3,16 @@
 // Подключение автозагрузки через composer
 require __DIR__ . '/../vendor/autoload.php';
 
-function filterUsersByName($users, $term)
-{
-  return array_filter($users, fn($userName) => str_contains($userName, $term) !== false);
-}
-
-$users = ['mike', 'mishel', 'adel', 'keks', 'kamila'];
-
 // Контейнеры в этом курсе не рассматриваются (это тема связанная с самим ООП), но если вам интересно, то посмотрите DI Container
 use Slim\Factory\AppFactory;
 use DI\Container;
+
+const FILE_PATH = __DIR__ . '/../users.json';
+
+function filterUsersByName($users, $term)
+{
+    return array_filter($users, fn($user) => str_contains($user['nickname'], $term) !== false);
+}
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -30,7 +30,13 @@ $app->get('/', function ($request, $response) {
     // return $response->write('Welcome to Slim!');
 });
 
-$app->get('/users', function ($request, $response) use ($users) {
+$app->get('/users', function ($request, $response) {
+    $users = [];
+
+    if (file_exists(FILE_PATH)) {
+        $users = json_decode(file_get_contents(FILE_PATH), true);
+    }
+
     $term = $request->getQueryParam('term') ?? '';
     $usersList = isset($term) ? filterUsersByName($users, $term) : $users;
 
@@ -43,7 +49,27 @@ $app->get('/users', function ($request, $response) use ($users) {
 });
 
 $app->post('/users', function ($request, $response) {
-    return $response->withStatus(302);
+    $userData = $request->getParsedBodyParam('user');
+
+    if (!file_exists(FILE_PATH)) {
+        touch(FILE_PATH);
+    }
+
+    $data = file_get_contents(FILE_PATH);
+    $users = json_decode($data, true);
+
+    $id = uniqid();
+    $users[$id] = $userData;
+
+    $encodedUsers = json_encode($users);
+
+    file_put_contents(FILE_PATH, $encodedUsers);
+
+    return $response->withRedirect('/users');
+});
+
+$app->get('/users/new', function ($request, $response) {
+    return $this->get('renderer')->render($response, 'users/new.phtml');
 });
 
 $app->get('/courses/{id}', function ($request, $response, array $args) {
