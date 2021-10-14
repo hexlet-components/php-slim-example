@@ -3,6 +3,12 @@
 // Подключение автозагрузки через composer
 require __DIR__ . '/../vendor/autoload.php';
 
+function filterUsersByName($users, $term)
+{
+  return array_filter($users, fn($userName) => str_contains($userName, $term) !== false);
+}
+
+$users = ['mike', 'mishel', 'adel', 'keks', 'kamila'];
 
 // Контейнеры в этом курсе не рассматриваются (это тема связанная с самим ООП), но если вам интересно, то посмотрите DI Container
 use Slim\Factory\AppFactory;
@@ -24,8 +30,16 @@ $app->get('/', function ($request, $response) {
     // return $response->write('Welcome to Slim!');
 });
 
-$app->get('/users', function ($request, $response) {
-    return $response->write('GET /users');
+$app->get('/users', function ($request, $response) use ($users) {
+    $term = $request->getQueryParam('term') ?? '';
+    $usersList = isset($term) ? filterUsersByName($users, $term) : $users;
+
+    $params = [
+      'users' => $usersList,
+      'term' => $term
+    ];
+
+    return $this->get('renderer')->render($response, 'users/index.phtml', $params);
 });
 
 $app->post('/users', function ($request, $response) {
