@@ -21,6 +21,8 @@ $container->set('renderer', function () {
 });
 $app = AppFactory::createFromContainer($container);
 
+$router = $app->getRouteCollector()->getRouteParser();
+
 $app->addErrorMiddleware(true, true, true);
 
 $app->get('/', function ($request, $response) {
@@ -28,7 +30,7 @@ $app->get('/', function ($request, $response) {
     return $response;
     // Благодаря пакету slim/http этот же код можно записать короче
     // return $response->write('Welcome to Slim!');
-});
+})->setName('home');
 
 $app->get('/users', function ($request, $response) {
     $users = [];
@@ -46,9 +48,9 @@ $app->get('/users', function ($request, $response) {
     ];
 
     return $this->get('renderer')->render($response, 'users/index.phtml', $params);
-});
+})->setName('users.index');
 
-$app->post('/users', function ($request, $response) {
+$app->post('/users', function ($request, $response) use ($router) {
     $userData = $request->getParsedBodyParam('user');
 
     if (!file_exists(FILE_PATH)) {
@@ -65,17 +67,17 @@ $app->post('/users', function ($request, $response) {
 
     file_put_contents(FILE_PATH, $encodedUsers);
 
-    return $response->withRedirect('/users');
-});
+    return $response->withRedirect($router->urlFor('users.index'));
+})->setName('users.store');
 
 $app->get('/users/new', function ($request, $response) {
     return $this->get('renderer')->render($response, 'users/new.phtml');
-});
+})->setName('users.create');
 
 $app->get('/courses/{id}', function ($request, $response, array $args) {
     $id = $args['id'];
     return $response->write("Course id: {$id}");
-});
+})->setName('courses.show');
 
 $app->get('/users/{id}', function ($request, $response, $args) {
     $params = ['id' => $args['id'], 'nickname' => 'user-' . $args['id']];
@@ -83,6 +85,6 @@ $app->get('/users/{id}', function ($request, $response, $args) {
     // $this доступен внутри анонимной функции благодаря https://php.net/manual/ru/closure.bindto.php
     // $this в Slim это контейнер зависимостей
     return $this->get('renderer')->render($response, 'users/show.phtml', $params);
-});
+})->setName('users.show');
 
 $app->run();
