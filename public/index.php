@@ -9,10 +9,26 @@ use DI\Container;
 
 const FILE_PATH = __DIR__ . '/../users.json';
 
+function getUsers($filepath)
+{
+    if (!file_exists($filepath)) {
+        file_put_contents($filepath, '{}');
+    }
+
+    return json_decode(file_get_contents($filepath), true);
+}
+
+function saveUsers($filepath, $users)
+{
+    file_put_contents($filepath, json_encode($users));
+}
+
 function filterUsersByName($users, $term)
 {
     return array_filter($users, fn($user) => str_contains($user['nickname'], $term) !== false);
 }
+
+$users = getUsers(FILE_PATH);
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -32,13 +48,7 @@ $app->get('/', function ($request, $response) {
     // return $response->write('Welcome to Slim!');
 })->setName('home');
 
-$app->get('/users', function ($request, $response) {
-    $users = [];
-
-    if (file_exists(FILE_PATH)) {
-        $users = json_decode(file_get_contents(FILE_PATH), true);
-    }
-
+$app->get('/users', function ($request, $response) use ($users) {
     $term = $request->getQueryParam('term') ?? '';
     $usersList = isset($term) ? filterUsersByName($users, $term) : $users;
 
@@ -50,22 +60,12 @@ $app->get('/users', function ($request, $response) {
     return $this->get('renderer')->render($response, 'users/index.phtml', $params);
 })->setName('users.index');
 
-$app->post('/users', function ($request, $response) use ($router) {
+$app->post('/users', function ($request, $response) use ($router, $users) {
     $userData = $request->getParsedBodyParam('user');
-
-    if (!file_exists(FILE_PATH)) {
-        touch(FILE_PATH);
-    }
-
-    $data = file_get_contents(FILE_PATH);
-    $users = json_decode($data, true);
-
     $id = uniqid();
     $users[$id] = $userData;
 
-    $encodedUsers = json_encode($users);
-
-    file_put_contents(FILE_PATH, $encodedUsers);
+    saveUsers(FILE_PATH, $users);
 
     return $response->withRedirect($router->urlFor('users.index'));
 })->setName('users.store');
@@ -79,11 +79,18 @@ $app->get('/courses/{id}', function ($request, $response, array $args) {
     return $response->write("Course id: {$id}");
 })->setName('courses.show');
 
-$app->get('/users/{id}', function ($request, $response, $args) {
-    $params = ['id' => $args['id'], 'nickname' => 'user-' . $args['id']];
-    // Указанный путь считается относительно базовой директории для шаблонов, заданной на этапе конфигурации
-    // $this доступен внутри анонимной функции благодаря https://php.net/manual/ru/closure.bindto.php
-    // $this в Slim это контейнер зависимостей
+$app->get('/users/{id}', function ($request, $response, $args) use ($users) {
+    $id = $args['id'];
+
+    if (!array_key_exists($id, $users)) {
+        return $response->withStatus(404);
+    }
+
+    $params = [
+        'id' => $id,
+        'nickname' => $users[$id]['nickname'],
+    ];
+
     return $this->get('renderer')->render($response, 'users/show.phtml', $params);
 })->setName('users.show');
 
