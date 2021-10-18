@@ -6,6 +6,7 @@ require __DIR__ . '/../vendor/autoload.php';
 // Контейнеры в этом курсе не рассматриваются (это тема связанная с самим ООП), но если вам интересно, то посмотрите DI Container
 use Slim\Factory\AppFactory;
 use DI\Container;
+use App\Validator;
 
 // Старт PHP сессии
 session_start();
@@ -71,18 +72,36 @@ $app->get('/users', function ($request, $response) use ($users) {
 
 $app->post('/users', function ($request, $response) use ($router, $users) {
     $userData = $request->getParsedBodyParam('user');
-    $id = uniqid();
-    $users[$id] = $userData;
 
-    saveUsers(FILE_PATH, $users);
+    $validator = new Validator();
+    $errors = $validator->validate($userData);
 
-    $this->get('flash')->addMessage('success', 'User was added successfully');
+    if (count($errors) === 0) {
+        $id = uniqid();
+        $users[$id] = $userData;
 
-    return $response->withRedirect($router->urlFor('users.index'));
+        saveUsers(FILE_PATH, $users);
+
+        $this->get('flash')->addMessage('success', 'User was added successfully');
+
+        return $response->withRedirect($router->urlFor('users.index'));
+    }
+
+    $params = [
+        'userData' => $userData,
+        'errors' => $errors
+    ];
+
+    return $this->get('renderer')->render($response->withStatus(422), 'users/new.phtml', $params);
 })->setName('users.store');
 
 $app->get('/users/new', function ($request, $response) {
-    return $this->get('renderer')->render($response, 'users/new.phtml');
+    $params = [
+        'userData' => [],
+        'errors' => []
+    ];
+
+    return $this->get('renderer')->render($response, 'users/new.phtml', $params);
 })->setName('users.create');
 
 $app->get('/courses/{id}', function ($request, $response, array $args) {
@@ -94,7 +113,7 @@ $app->get('/users/{id}', function ($request, $response, $args) use ($users) {
     $id = $args['id'];
 
     if (!array_key_exists($id, $users)) {
-        return $response->withStatus(404);
+        return $response->write('Page not found')->withStatus(404);
     }
 
     $params = [
