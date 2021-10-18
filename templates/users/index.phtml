@@ -1,4 +1,8 @@
 <h1>Users</h1>
+<?php if (!empty($flash)): ?>
+<p style="color: green"><?= $flash['success'][0]?></p>
+<hr>
+<?php endif; ?>
 <div>
   <form action="/users" method="get">
     <input type="search" name="term" value="<?= htmlspecialchars($term) ?>" />

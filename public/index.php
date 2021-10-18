@@ -7,6 +7,9 @@ require __DIR__ . '/../vendor/autoload.php';
 use Slim\Factory\AppFactory;
 use DI\Container;
 
+// Старт PHP сессии
+session_start();
+
 const FILE_PATH = __DIR__ . '/../users.json';
 
 function getUsers($filepath)
@@ -35,6 +38,9 @@ $container->set('renderer', function () {
     // Параметром передается базовая директория, в которой будут храниться шаблоны
     return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
 });
+$container->set('flash', function () {
+    return new \Slim\Flash\Messages();
+});
 $app = AppFactory::createFromContainer($container);
 
 $router = $app->getRouteCollector()->getRouteParser();
@@ -52,9 +58,12 @@ $app->get('/users', function ($request, $response) use ($users) {
     $term = $request->getQueryParam('term') ?? '';
     $usersList = isset($term) ? filterUsersByName($users, $term) : $users;
 
+    $messages = $this->get('flash')->getMessages();
+
     $params = [
       'users' => $usersList,
-      'term' => $term
+      'term' => $term,
+      'flash' => $messages
     ];
 
     return $this->get('renderer')->render($response, 'users/index.phtml', $params);
@@ -66,6 +75,8 @@ $app->post('/users', function ($request, $response) use ($router, $users) {
     $users[$id] = $userData;
 
     saveUsers(FILE_PATH, $users);
+
+    $this->get('flash')->addMessage('success', 'User was added successfully');
 
     return $response->withRedirect($router->urlFor('users.index'));
 })->setName('users.store');
