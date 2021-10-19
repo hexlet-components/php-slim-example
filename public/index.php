@@ -50,11 +50,8 @@ $router = $app->getRouteCollector()->getRouteParser();
 $app->addErrorMiddleware(true, true, true);
 $app->add(MethodOverrideMiddleware::class);
 
-$app->get('/', function ($request, $response) {
-    $response->getBody()->write('Welcome to Slim!');
-    return $response;
-    // Благодаря пакету slim/http этот же код можно записать короче
-    // return $response->write('Welcome to Slim!');
+$app->get('/', function ($request, $response) use ($router) {
+    return $response->withRedirect($router->urlFor('users.index'), 302);
 })->setName('home');
 
 $app->get('/users', function ($request, $response) use ($users) {
@@ -171,6 +168,18 @@ $app->patch('/users/{id}', function ($request, $response, $args) use ($users, $r
         ];
 
         return $this->get('renderer')->render($response->withStatus(422), 'users/edit.phtml', $params);
+    }
+);
+
+$app->delete('/users/{id}', function ($request, $response, $args) use ($users, $router) {
+        $id = $args['id'];
+        unset($users[$id]);
+
+        saveUsers(FILE_PATH, $users);
+
+        $this->get('flash')->addMessage('success', "User was deleted successfully");
+
+        return $response->withRedirect($router->urlFor('users.index'));
     }
 );
 
