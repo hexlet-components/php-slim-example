@@ -14,26 +14,15 @@ session_start();
 
 const FILE_PATH = __DIR__ . '/../users.json';
 
-function getUsers($filepath)
+function getUsers($request)
 {
-    if (!file_exists($filepath)) {
-        file_put_contents($filepath, '{}');
-    }
-
-    return json_decode(file_get_contents($filepath), true);
-}
-
-function saveUsers($filepath, $users)
-{
-    file_put_contents($filepath, json_encode($users));
+    return json_decode($request->getCookieParam('users') ?? '', true);
 }
 
 function filterUsersByName($users, $term)
 {
     return array_filter($users, fn($user) => str_contains($user['nickname'], $term) !== false);
 }
-
-$users = getUsers(FILE_PATH);
 
 $container = new Container();
 $container->set('renderer', function () {
@@ -54,8 +43,9 @@ $app->get('/', function ($request, $response) use ($router) {
     return $response->withRedirect($router->urlFor('users.index'), 302);
 })->setName('home');
 
-$app->get('/users', function ($request, $response) use ($users) {
+$app->get('/users', function ($request, $response) {
     $term = $request->getQueryParam('term') ?? '';
+    $users = getUsers($request) ?? [];
     $usersList = isset($term) ? filterUsersByName($users, $term) : $users;
 
     $messages = $this->get('flash')->getMessages();
@@ -69,7 +59,8 @@ $app->get('/users', function ($request, $response) use ($users) {
     return $this->get('renderer')->render($response, 'users/index.phtml', $params);
 })->setName('users.index');
 
-$app->post('/users', function ($request, $response) use ($router, $users) {
+$app->post('/users', function ($request, $response) use ($router) {
+    $users = getUsers($request);
     $userData = $request->getParsedBodyParam('user');
 
     $validator = new Validator();
@@ -79,11 +70,12 @@ $app->post('/users', function ($request, $response) use ($router, $users) {
         $id = uniqid();
         $users[$id] = $userData;
 
-        saveUsers(FILE_PATH, $users);
+        $encodedUsers = json_encode($users);
 
         $this->get('flash')->addMessage('success', 'User was added successfully');
 
-        return $response->withRedirect($router->urlFor('users.index'));
+        return $response->withHeader('Set-Cookie', "users={$encodedUsers}")
+            ->withRedirect($router->urlFor('users.index'));
     }
 
     $params = [
@@ -108,8 +100,9 @@ $app->get('/courses/{id}', function ($request, $response, array $args) {
     return $response->write("Course id: {$id}");
 })->setName('courses.show');
 
-$app->get('/users/{id}', function ($request, $response, $args) use ($users) {
+$app->get('/users/{id}', function ($request, $response, $args) {
     $id = $args['id'];
+    $users = getUsers($request);
 
     if (!array_key_exists($id, $users)) {
         return $response->write('Page not found')->withStatus(404);
@@ -126,9 +119,10 @@ $app->get('/users/{id}', function ($request, $response, $args) use ($users) {
     return $this->get('renderer')->render($response, 'users/show.phtml', $params);
 })->setName('users.show');
 
-$app->get('/users/{id}/edit', function ($request, $response, $args) use ($users) {
+$app->get('/users/{id}/edit', function ($request, $response, $args) {
         $messages = $this->get('flash')->getMessages();
         $id = $args['id'];
+        $users = getUsers($request);
         $userData = $users[$id];
         $params = [
             'id' => $id,
@@ -141,8 +135,9 @@ $app->get('/users/{id}/edit', function ($request, $response, $args) use ($users)
     }
 )->setName('users.edit');
 
-$app->patch('/users/{id}', function ($request, $response, $args) use ($users, $router) {
+$app->patch('/users/{id}', function ($request, $response, $args) use ($router) {
         $id = $args['id'];
+        $users = getUsers($request);
         $user = $users[$id];
         $userData = $request->getParsedBodyParam('user');
 
@@ -154,11 +149,12 @@ $app->patch('/users/{id}', function ($request, $response, $args) use ($users, $r
             $user['email'] = $userData['email'];
             $users[$id] = $user;
 
-            saveUsers(FILE_PATH, $users);
+            $encodedUsers = json_encode($users);
 
             $this->get('flash')->addMessage('success', "User was updated successfully");
 
-            return $response->withRedirect($router->urlFor('users.show', $args));
+            return $response->withHeader('Set-Cookie', "users={$encodedUsers}")
+                ->withRedirect($router->urlFor('users.show', $args));
         }
 
         $params = [
@@ -171,15 +167,17 @@ $app->patch('/users/{id}', function ($request, $response, $args) use ($users, $r
     }
 );
 
-$app->delete('/users/{id}', function ($request, $response, $args) use ($users, $router) {
+$app->delete('/users/{id}', function ($request, $response, $args) use ($router) {
         $id = $args['id'];
+        $users = getUsers($request);
         unset($users[$id]);
 
-        saveUsers(FILE_PATH, $users);
+        $encodedUsers = json_encode($users);
 
         $this->get('flash')->addMessage('success', "User was deleted successfully");
 
-        return $response->withRedirect($router->urlFor('users.index'));
+        return $response->withHeader('Set-Cookie', "users={$encodedUsers}")
+            ->withRedirect($router->urlFor('users.index'));
     }
 );
 
