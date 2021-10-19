@@ -1,0 +1,25 @@
+<h1>Edit User</h1>
+<hr>
+<form action="/users/<?= $id ?>" method="post">
+    <input type="hidden" name="_METHOD" value="PATCH">
+    <div>
+        <label for="user-nickname">
+        Nickname:
+        <input type="text" id="user-nickname" name="user[nickname]" value="<?= htmlspecialchars($user['nickname'] ?? '') ?>" required>
+        </label>
+        <?php if (isset($errors['nickname'])): ?>
+            <div><?= $errors['nickname'] ?></div>
+        <?php endif ?>
+    </div>
+    <div>
+        <label for="user-email">
+        Email:
+        <input type="text" id="user-email" name="user[email]" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
+        </label>
+    </div>
+    <div>
+        <button type="submit" title="Submit form">Update</button>
+    </div>
+</form>
+
+<p><a href="/users">Back to users list</a></p>

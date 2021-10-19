@@ -1,8 +1,8 @@
 <h1>Users</h1>
 <?php if (!empty($flash)): ?>
 <p style="color: green"><?= $flash['success'][0]?></p>
-<hr>
 <?php endif; ?>
+<p><a href="/users/new">Add new user</a></p>
 <div>
   <form action="/users" method="get">
     <input type="search" name="term" value="<?= htmlspecialchars($term) ?>" />
@@ -14,7 +14,7 @@
 <p>Nothing to display, sorry. :(</p>
 <?php endif; ?>
 <ul>
-  <?php foreach ($users as $user): ?>
-    <li><i><?= htmlspecialchars($user['nickname'])?></i></li>
+  <?php foreach ($users as $id => $user): ?>
+    <li><a href="/users/<?= htmlspecialchars($id) ?>"><?= htmlspecialchars($user['nickname']) ?></a></li>
   <?php endforeach; ?>
 </ul>
