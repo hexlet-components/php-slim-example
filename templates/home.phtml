@@ -3,8 +3,8 @@
 <?php if (!empty($flash)): ?>
     <p style="color: red"><?= $flash['error'][0]?></p>
 <?php endif; ?>
-
+<p>Write email «admin@hexlet.io» below and press «Login»</p>
 <form action="/login" method="post">
     <input type="text" name="email" value="<?= htmlspecialchars($email) ?>">
-    <input type="submit" value="login">
+    <input type="submit" value="Login">
 </form>
