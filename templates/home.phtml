@@ -1,0 +1,10 @@
+<h1>Login</h1>
+
+<?php if (!empty($flash)): ?>
+    <p style="color: red"><?= $flash['error'][0]?></p>
+<?php endif; ?>
+
+<form action="/login" method="post">
+    <input type="text" name="email" value="<?= htmlspecialchars($email) ?>">
+    <input type="submit" value="login">
+</form>

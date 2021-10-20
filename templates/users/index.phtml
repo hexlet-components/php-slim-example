@@ -1,4 +1,12 @@
 <h1>Users</h1>
+
+<?php if (isset($_SESSION['isAdmin'])): ?>
+<form action="/logout" method="post">
+    <input type="hidden" name="_METHOD" value="DELETE">
+    <input type="submit" value="Logout">
+</form>
+<?php endif; ?>
+
 <?php if (!empty($flash)): ?>
 <p style="color: green"><?= $flash['success'][0]?></p>
 <?php endif; ?>
