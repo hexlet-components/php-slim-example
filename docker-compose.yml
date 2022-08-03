@@ -1,0 +1,14 @@
+---
+
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+    command: make start
+    ports:
+      - "8080:8080"
+    volumes:
+      - ".:/app"
+      - "/tmp:/tmp"
