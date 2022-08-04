@@ -1,7 +1,5 @@
 FROM php:8.1-cli
 
-
-RUN apt-get update && apt-get install -y libzip-dev
 RUN docker-php-ext-install zip
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
