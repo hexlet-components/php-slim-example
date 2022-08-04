@@ -49,6 +49,6 @@ jobs:
         with:
           context: .
           push: true
-          cache-from: hexletcomponents/hexlet-slim-example:latest
+          cache-from: hexletcomponents/slim-example:latest
           cache-to: type=inline
-          tags: hexletcomponents/hexlet-slim-example:latest
+          tags: hexletcomponents/slim-example:latest
