@@ -9,4 +9,4 @@ WORKDIR /app
 COPY . .
 RUN composer install
 
-CMD ["bash", "-c", "php -S 0.0.0.0:8080 -t public public/index.php"]
+CMD ["bash", "-c", "make start"]
