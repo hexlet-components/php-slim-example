@@ -1,0 +1,8 @@
+<p><?= htmlspecialchars($id) ?></p>
+<p><?= htmlspecialchars($car['make']) ?></p>
+<p><?= htmlspecialchars($car['model']) ?></p>
+<?php if (!empty($flash)): ?>
+<p style="color: green"><?= $flash['success'][0]?></p>
+<?php endif; ?>
+<p><a href="/cars/<?= $id ?>/edit">Edit car</a></p>
+<p><a href="/cars">Back to cars list</a></p>

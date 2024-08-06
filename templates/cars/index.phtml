@@ -1,0 +1,21 @@
+<h1>Cars</h1>
+
+<?php if (!empty($flash)): ?>
+<p style="color: green"><?= $flash['success'][0]?></p>
+<?php endif; ?>
+<p><a href="/cars/new">Add new car</a></p>
+<hr>
+<?php if (empty($cars)): ?>
+<p>Nothing to display, sorry. :(</p>
+<?php endif; ?>
+<ul>
+  <?php foreach ($cars as $car): ?>
+    <li>
+      <a href="/cars/<?= htmlspecialchars($car['id']) ?>">
+        <?= htmlspecialchars($car['id']) ?>
+        <?= htmlspecialchars($car['make']) ?>
+        <?= htmlspecialchars($car['model']) ?>
+      </a>
+    </li>
+  <?php endforeach; ?>
+</ul>
