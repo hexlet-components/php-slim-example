@@ -4,7 +4,7 @@
   <div>
     <label for="car-make">
       Make:
-      <input type="text" id="car-make" name="car[make]" value="<?= htmlspecialchars($car['make'] ?? '') ?>" required>
+      <input type="text" id="car-make" name="car[make]" value="<?= htmlspecialchars($car->getMake() ?? '') ?>" required>
     </label>
     <?php if (isset($errors['make'])): ?>
         <div><?= $errors['make'] ?></div>
@@ -13,7 +13,7 @@
   <div>
     <label for="car-model">
       Model:
-      <input type="text" id="car-model" name="car[model]" value="<?= htmlspecialchars($car['model'] ?? '') ?>" required>
+      <input type="text" id="car-model" name="car[model]" value="<?= htmlspecialchars($car->getModel() ?? '') ?>" required>
     </label>
   </div>
   <div>

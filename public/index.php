@@ -5,6 +5,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // Контейнеры в этом курсе не рассматриваются (это тема связанная с самим ООП), но если вам интересно, то посмотрите DI Container
 
+use App\Car;
 use App\CarRepository;
 use App\CarValidator;
 use Slim\Factory\AppFactory;
@@ -28,21 +29,32 @@ function filterUsersByName($users, $term)
     return array_filter($users, fn($user) => str_contains($user['nickname'], $term) !== false);
 }
 
-$conn = new \PDO('sqlite:hexlet');
-$conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-$filePath = implode('/', [dirname(__DIR__), 'init.sql']);
-$initSql = file_get_contents($filePath);
-$conn->exec($initSql);
-$carRepository = new CarRepository($conn);
+function getContent($fileName)
+{
+    $path = implode('/', [dirname(__DIR__), $fileName]);
+    return file_get_contents($path);
+}
 
 $container = new Container();
+
 $container->set('renderer', function () {
     // Параметром передается базовая директория, в которой будут храниться шаблоны
     return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
 });
+
 $container->set('flash', function () {
     return new \Slim\Flash\Messages();
 });
+
+$container->set(\PDO::class, function () {
+    $conn = new \PDO('sqlite:hexlet');
+    $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+    return $conn;
+});
+
+$initSql = getContent('init.sql');
+$container->get(\PDO::class)->exec($initSql);
+
 $app = AppFactory::createFromContainer($container);
 
 $router = $app->getRouteCollector()->getRouteParser();
@@ -243,8 +255,8 @@ $app->delete('/users/{id}', function ($request, $response, $args) use ($router) 
         ->withRedirect($router->urlFor('users.index'));
 });
 
-$app->get('/cars', function ($request, $response) use ($carRepository) {
-
+$app->get('/cars', function ($request, $response) {
+    $carRepository = $this->get(CarRepository::class);
     $cars = $carRepository->getEntities();
 
     $messages = $this->get('flash')->getMessages();
@@ -257,14 +269,16 @@ $app->get('/cars', function ($request, $response) use ($carRepository) {
     return $this->get('renderer')->render($response, 'cars/index.phtml', $params);
 })->setName('cars.index');
 
-$app->post('/cars', function ($request, $response) use ($router, $carRepository) {
+$app->post('/cars', function ($request, $response) use ($router) {
+    $carRepository = $this->get(CarRepository::class);
     $carData = $request->getParsedBodyParam('car');
 
     $validator = new CarValidator();
     $errors = $validator->validate($carData);
 
     if (count($errors) === 0) {
-        $carRepository->save($carData);
+        $car = new Car($carData['make'], $carData['model']);
+        $carRepository->save($car);
         $this->get('flash')->addMessage('success', 'Car was added successfully');
         return $response->withRedirect($router->urlFor('cars.index'));
     }
@@ -279,15 +293,15 @@ $app->post('/cars', function ($request, $response) use ($router, $carRepository)
 
 $app->get('/cars/new', function ($request, $response) {
     $params = [
-        'userData' => [],
+        'car' => new Car('', ''),
         'errors' => []
     ];
 
     return $this->get('renderer')->render($response, 'cars/new.phtml', $params);
 })->setName('cars.create');
 
-$app->get('/cars/{id}', function ($request, $response, $args) use ($carRepository) {
-
+$app->get('/cars/{id}', function ($request, $response, $args) {
+    $carRepository = $this->get(CarRepository::class);
     $id = $args['id'];
     $car = $carRepository->find($id);
 
@@ -298,7 +312,6 @@ $app->get('/cars/{id}', function ($request, $response, $args) use ($carRepositor
     $messages = $this->get('flash')->getMessages();
 
     $params = [
-        'id' => $id,
         'car' => $car,
         'flash' => $messages
     ];
@@ -306,7 +319,8 @@ $app->get('/cars/{id}', function ($request, $response, $args) use ($carRepositor
     return $this->get('renderer')->render($response, 'cars/show.phtml', $params);
 })->setName('cars.show');
 
-$app->get('/cars/{id}/edit', function ($request, $response, $args) use ($carRepository) {
+$app->get('/cars/{id}/edit', function ($request, $response, $args) {
+    $carRepository = $this->get(CarRepository::class);
     $messages = $this->get('flash')->getMessages();
     $id = $args['id'];
     $car = $carRepository->find($id);
@@ -321,7 +335,8 @@ $app->get('/cars/{id}/edit', function ($request, $response, $args) use ($carRepo
     return $this->get('renderer')->render($response, 'cars/edit.phtml', $params);
 })->setName('cars.edit');
 
-$app->patch('/cars/{id}', function ($request, $response, $args) use ($router, $carRepository) {
+$app->patch('/cars/{id}', function ($request, $response, $args) use ($router) {
+    $carRepository = $this->get(CarRepository::class);
     $id = $args['id'];
 
     $car = $carRepository->find($id);
@@ -331,13 +346,13 @@ $app->patch('/cars/{id}', function ($request, $response, $args) use ($router, $c
     }
 
     $carData = $request->getParsedBodyParam('car');
-    $carData['id'] = $id;
-
     $validator = new CarValidator();
     $errors = $validator->validate($carData);
 
     if (count($errors) === 0) {
-        $carRepository->save($carData);
+        $car->setMake($carData['make']);
+        $car->setModel($carData['model']);
+        $carRepository->save($car);
         $this->get('flash')->addMessage('success', "Car was updated successfully");
         return $response->withRedirect($router->urlFor('cars.show', $args));
     }

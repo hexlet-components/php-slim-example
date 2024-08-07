@@ -11,10 +11,10 @@
 <ul>
   <?php foreach ($cars as $car): ?>
     <li>
-      <a href="/cars/<?= htmlspecialchars($car['id']) ?>">
-        <?= htmlspecialchars($car['id']) ?>
-        <?= htmlspecialchars($car['make']) ?>
-        <?= htmlspecialchars($car['model']) ?>
+      <a href="/cars/<?= htmlspecialchars($car->getId()) ?>">
+        <?= htmlspecialchars($car->getId()) ?>
+        <?= htmlspecialchars($car->getMake()) ?>
+        <?= htmlspecialchars($car->getModel()) ?>
       </a>
     </li>
   <?php endforeach; ?>
