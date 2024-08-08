@@ -41,7 +41,7 @@ $container->set('flash', function () {
 });
 
 $container->set(\PDO::class, function () {
-    $conn = new \PDO('sqlite:hexlet');
+    $conn = new \PDO('sqlite:database.sqlite');
     $conn->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
     return $conn;
 });
