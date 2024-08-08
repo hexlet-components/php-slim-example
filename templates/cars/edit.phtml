@@ -1,6 +1,6 @@
 <h1>Edit car</h1>
 <hr>
-<form action="/cars/<?= $id ?>" method="post">
+<form action="/cars/<?= $car->getId() ?>" method="post">
     <input type="hidden" name="_METHOD" value="PATCH">
     <div>
         <label for="car-make">

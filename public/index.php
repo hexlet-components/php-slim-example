@@ -29,12 +29,6 @@ function filterUsersByName($users, $term)
     return array_filter($users, fn($user) => str_contains($user['nickname'], $term) !== false);
 }
 
-function getContent($fileName)
-{
-    $path = implode('/', [dirname(__DIR__), $fileName]);
-    return file_get_contents($path);
-}
-
 $container = new Container();
 
 $container->set('renderer', function () {
@@ -52,7 +46,8 @@ $container->set(\PDO::class, function () {
     return $conn;
 });
 
-$initSql = getContent('init.sql');
+$initFilePath = implode('/', [dirname(__DIR__), 'init.sql']);
+$initSql = file_get_contents($initFilePath);
 $container->get(\PDO::class)->exec($initSql);
 
 $app = AppFactory::createFromContainer($container);
@@ -145,7 +140,7 @@ $app->post('/users', function ($request, $response) use ($router) {
     return $this->get('renderer')->render($response->withStatus(422), 'users/new.phtml', $params);
 })->setName('users.store');
 
-$app->get('/users/new', function ($request, $response) {
+$app->get('/users/new', function ($request, $response) use ($router){
     if (!isset($_SESSION['isAdmin'])) {
         $this->get('flash')->addMessage('error', 'Access Denied! Please login!');
 
@@ -190,7 +185,7 @@ $app->get('/users/{id}', function ($request, $response, $args) use ($router) {
     return $this->get('renderer')->render($response, 'users/show.phtml', $params);
 })->setName('users.show');
 
-$app->get('/users/{id}/edit', function ($request, $response, $args) {
+$app->get('/users/{id}/edit', function ($request, $response, $args) use ($router) {
     if (!isset($_SESSION['isAdmin'])) {
         $this->get('flash')->addMessage('error', 'Access Denied! Please login!');
 
@@ -277,7 +272,7 @@ $app->post('/cars', function ($request, $response) use ($router) {
     $errors = $validator->validate($carData);
 
     if (count($errors) === 0) {
-        $car = new Car($carData['make'], $carData['model']);
+        $car = Car::fromArray([$carData['make'], $carData['model']]);
         $carRepository->save($car);
         $this->get('flash')->addMessage('success', 'Car was added successfully');
         return $response->withRedirect($router->urlFor('cars.index'));
@@ -293,7 +288,7 @@ $app->post('/cars', function ($request, $response) use ($router) {
 
 $app->get('/cars/new', function ($request, $response) {
     $params = [
-        'car' => new Car('', ''),
+        'car' => new Car(),
         'errors' => []
     ];
 
@@ -326,7 +321,6 @@ $app->get('/cars/{id}/edit', function ($request, $response, $args) {
     $car = $carRepository->find($id);
 
     $params = [
-        'id' => $id,
         'car' => $car,
         'errors' => [],
         'flash' => $messages
@@ -358,7 +352,6 @@ $app->patch('/cars/{id}', function ($request, $response, $args) use ($router) {
     }
 
     $params = [
-        'id' => $id,
         'car' => $car,
         'errors' => $errors
     ];

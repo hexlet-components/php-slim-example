@@ -11,8 +11,8 @@
 <ul>
   <?php foreach ($cars as $car): ?>
     <li>
-      <a href="/cars/<?= htmlspecialchars($car->getId()) ?>">
-        <?= htmlspecialchars($car->getId()) ?>
+      <a href="/cars/<?= $car->getId() ?>">
+        <?= $car->getId() ?>
         <?= htmlspecialchars($car->getMake()) ?>
         <?= htmlspecialchars($car->getModel()) ?>
       </a>
