@@ -2,7 +2,7 @@
 
 namespace App;
 
-class Validator
+class UserValidator
 {
     public function validate(array $user): array
     {

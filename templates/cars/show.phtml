@@ -1,0 +1,8 @@
+<p><?= $car->getId() ?></p>
+<p><?= htmlspecialchars($car->getMake()) ?></p>
+<p><?= htmlspecialchars($car->getModel()) ?></p>
+<?php if (!empty($flash)): ?>
+<p style="color: green"><?= $flash['success'][0]?></p>
+<?php endif; ?>
+<p><a href="/cars/<?= $car->getId() ?>/edit">Edit car</a></p>
+<p><a href="/cars">Back to cars list</a></p>

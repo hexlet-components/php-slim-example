@@ -1,0 +1,24 @@
+<h1>New car</h1>
+<hr>
+<form action="/cars" method="post">
+  <div>
+    <label for="car-make">
+      Make:
+      <input type="text" id="car-make" name="car[make]" value="<?= htmlspecialchars($car->getMake() ?? '') ?>" required>
+    </label>
+    <?php if (isset($errors['make'])): ?>
+        <div><?= $errors['make'] ?></div>
+    <?php endif ?>
+  </div>
+  <div>
+    <label for="car-model">
+      Model:
+      <input type="text" id="car-model" name="car[model]" value="<?= htmlspecialchars($car->getModel() ?? '') ?>" required>
+    </label>
+  </div>
+  <div>
+    <button type="submit" title="Submit form">Submit</button>
+  </div>
+</form>
+
+<p><a href="/cars">Back to cars list</a></p>

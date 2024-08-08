@@ -1,0 +1,31 @@
+<h1>Edit car</h1>
+<hr>
+<form action="/cars/<?= $car->getId() ?>" method="post">
+    <input type="hidden" name="_METHOD" value="PATCH">
+    <div>
+        <label for="car-make">
+        Make:
+        <input type="text" id="car-make" name="car[make]" value="<?= htmlspecialchars($car->getMake() ?? '') ?>" required>
+        </label>
+        <?php if (isset($errors['make'])): ?>
+            <div><?= $errors['make'] ?></div>
+        <?php endif ?>
+    </div>
+    <div>
+        <label for="car-model">
+        Email:
+        <input type="text" id="car-model" name="car[model]" value="<?= htmlspecialchars($car->getModel() ?? '') ?>" required>
+        </label>
+    </div>
+    <div>
+        <button type="submit" title="Submit form">Update</button>
+    </div>
+</form>
+
+<h2>Delete car?</h2>
+<form action="/cars/<?= $id ?>" method="post">
+    <input type="hidden" name="_METHOD" value="DELETE">
+    <input type="submit" value="Remove">
+</form>
+
+<p><a href="/users">Back to cars list</a></p>
