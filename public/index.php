@@ -16,7 +16,6 @@ use App\UserValidator;
 // Старт PHP сессии
 session_start();
 
-const FILE_PATH = __DIR__ . '/../users.json';
 const ADMIN_EMAIL = 'admin@hexlet.io';
 
 function getUsers($request)
