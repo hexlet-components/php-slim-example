@@ -11,7 +11,7 @@ use App\CarValidator;
 use Slim\Factory\AppFactory;
 use Slim\Middleware\MethodOverrideMiddleware;
 use DI\Container;
-use App\Validator;
+use App\UserValidator;
 
 // Старт PHP сессии
 session_start();
@@ -117,7 +117,7 @@ $app->post('/users', function ($request, $response) use ($router) {
     $users = getUsers($request);
     $userData = $request->getParsedBodyParam('user');
 
-    $validator = new Validator();
+    $validator = new UserValidator();
     $errors = $validator->validate($userData);
 
     if (count($errors) === 0) {
@@ -212,7 +212,7 @@ $app->patch('/users/{id}', function ($request, $response, $args) use ($router) {
     $user = $users[$id];
     $userData = $request->getParsedBodyParam('user');
 
-    $validator = new Validator();
+    $validator = new UserValidator();
     $errors = $validator->validate($userData);
 
     if (count($errors) === 0) {
