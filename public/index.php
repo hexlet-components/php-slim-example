@@ -98,7 +98,7 @@ $app->get('/users', function ($request, $response) use ($router) {
     }
 
     $term = $request->getQueryParam('term') ?? '';
-    $users = getUsers($request) ?? [];
+    $users = getUsers($request) ?? [];  
     $usersList = isset($term) ? filterUsersByName($users, $term) : $users;
 
     $messages = $this->get('flash')->getMessages();
