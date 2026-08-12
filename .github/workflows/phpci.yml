@@ -15,8 +15,7 @@ jobs:
     strategy:
       matrix:
         php-versions:
-          - '8.3'
-          - '8.4'
+          - '8.5'
 
     steps:
       - uses: actions/checkout@v7
@@ -26,11 +25,15 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
 
-      - name: PHP Security Checker
-        uses: StephaneBour/actions-php-security-checker@1.2
-
       - name: Setup project
         run: make setup
+
+      # composer audit встроен в composer с 2.4, отдельный экшен для этого не нужен.
+      - name: Check advisories
+        run: composer audit
+
+      - name: Check app responds
+        run: make check
 
   deploy:
     needs: build
