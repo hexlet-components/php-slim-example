@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App;
 
 class CarRepository
@@ -14,7 +16,7 @@ class CarRepository
     public function getEntities(): array
     {
         $cars = [];
-        $sql = "SELECT * FROM cars";
+        $sql = 'SELECT * FROM cars';
         $stmt = $this->conn->query($sql);
 
         while ($row = $stmt->fetch()) {
@@ -28,10 +30,10 @@ class CarRepository
 
     public function find(int $id): ?Car
     {
-        $sql = "SELECT * FROM cars WHERE id = ?";
+        $sql = 'SELECT * FROM cars WHERE id = ?';
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$id]);
-        if ($row = $stmt->fetch())  {
+        if ($row = $stmt->fetch()) {
             $car = Car::fromArray([$row['make'], $row['model']]);
             $car->setId($row['id']);
             return $car;
@@ -40,7 +42,8 @@ class CarRepository
         return null;
     }
 
-    public function save(Car $car): void {
+    public function save(Car $car): void
+    {
         if ($car->exists()) {
             $this->update($car);
         } else {
@@ -50,7 +53,7 @@ class CarRepository
 
     private function update(Car $car): void
     {
-        $sql = "UPDATE cars SET make = :make, model = :model WHERE id = :id";
+        $sql = 'UPDATE cars SET make = :make, model = :model WHERE id = :id';
         $stmt = $this->conn->prepare($sql);
         $id = $car->getId();
         $make = $car->getMake();
@@ -63,7 +66,7 @@ class CarRepository
 
     private function create(Car $car): void
     {
-        $sql = "INSERT INTO cars (make, model) VALUES (:make, :model)";
+        $sql = 'INSERT INTO cars (make, model) VALUES (:make, :model)';
         $stmt = $this->conn->prepare($sql);
         $make = $car->getMake();
         $model = $car->getModel();

@@ -64,16 +64,16 @@
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v2.0.16",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/serializable-closure.git",
-                "reference": "7cfc24e4fa2cca045fb8dd2a797a2b2b13b655ed"
+                "reference": "2d5869a838bbcf37e0d8b0568fc41914e81374b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/7cfc24e4fa2cca045fb8dd2a797a2b2b13b655ed",
-                "reference": "7cfc24e4fa2cca045fb8dd2a797a2b2b13b655ed",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/2d5869a838bbcf37e0d8b0568fc41914e81374b5",
+                "reference": "2d5869a838bbcf37e0d8b0568fc41914e81374b5",
                 "shasum": ""
             },
             "require": {
@@ -121,7 +121,7 @@
                 "issues": "https://github.com/laravel/serializable-closure/issues",
                 "source": "https://github.com/laravel/serializable-closure"
             },
-            "time": "2026-08-18T20:28:54+00:00"
+            "time": "2026-09-22T14:32:34+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -936,16 +936,16 @@
         },
         {
             "name": "slim/slim",
-            "version": "4.15.2",
+            "version": "4.15.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slimphp/Slim.git",
-                "reference": "e12cb05ca2a14e8f459d019e87a31dc915b80470"
+                "reference": "3675bf6baac66b07032575b7bef4200b60b7974b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slimphp/Slim/zipball/e12cb05ca2a14e8f459d019e87a31dc915b80470",
-                "reference": "e12cb05ca2a14e8f459d019e87a31dc915b80470",
+                "url": "https://api.github.com/repos/slimphp/Slim/zipball/3675bf6baac66b07032575b7bef4200b60b7974b",
+                "reference": "3675bf6baac66b07032575b7bef4200b60b7974b",
                 "shasum": ""
             },
             "require": {
@@ -1048,7 +1048,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-22T08:00:12+00:00"
+            "time": "2026-09-01T17:11:05+00:00"
         }
     ],
     "packages-dev": [],
