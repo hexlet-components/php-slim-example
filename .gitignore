@@ -2,3 +2,4 @@ vendor/
 users.json
 .vscode
 database.sqlite
+.lycheecache

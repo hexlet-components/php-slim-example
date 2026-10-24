@@ -2,8 +2,6 @@
 
 [![PHP CI](https://github.com/hexlet-components/slim-example/actions/workflows/phpci.yml/badge.svg)](https://github.com/hexlet-components/slim-example/actions/workflows/phpci.yml)
 
-Demo: <https://slim-example.hexlet.app/>
-
 ## Requirements
 
 - PHP >=7.4
